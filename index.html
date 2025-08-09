@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Unique AI Age Calculator</title>
+<style>
+  /* Reset */
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f4f8;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    scroll-behavior: smooth;
+  }
+  header {
+    background-color: #223a5e;
+    color: white;
+    padding: 1em 1.5em;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+  }
+  header h1 {
+    font-weight: 700;
+    letter-spacing: 1.1px;
+    margin-bottom: 0.3em;
+  }
+  nav {
+    display: flex;
+    gap: 1em;
+  }
+  nav a {
+    color: #aad4ff;
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 2px solid transparent;
+    padding-bottom: 3px;
+    transition: border-color 0.3s ease;
+  }
+  nav a.active,
+  nav a:hover,
+  nav a:focus {
+    border-color: #59aaff;
+    outline: none;
+  }
+  main {
+    flex-grow: 1;
+    background: white;
+    max-width: 750px;
+    margin: 2em auto 3em;
+    padding: 2.5em 3em;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    scroll-margin-top: 100px;
+  }
+  h2, h3 {
+    color: #2255a4;
+    margin-bottom: 1em;
+  }
+  section {
+    margin-bottom: 3.5em;
+  }
+  label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.4em;
+  }
+  input[type="date"], input[type="datetime-local"] {
+    font-size: 1em;
+    padding: 0.5em 0.7em;
+    border-radius: 5px;
+    border: 1.5px solid #c2d3f2;
+    width: 100%;
+    max-width: 300px;
+    transition: border-color 0.3s ease;
+  }
+  input[type="date"]:focus,
+  input[type="datetime-local"]:focus {
+    outline: none;
+    border-color: #59aaff;
+    box-shadow: 0 0 10px #8ec7ff66;
+  }
+  button {
+    margin-top: 1em;
+    background-color: #2255a4;
+    color: white;
+    font-weight: 700;
+    padding: 0.75em 1.6em;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover,
+  button:focus {
+    background-color: #1a4075;
+    outline: none;
+  }
+  #result {
+    margin-top: 1.5em;
+    font-weight: 700;
+    font-size: 1.25em;
+    color: #142f57;
+    min-height: 3em;
+  }
+  /* Colorful Keywords */
+  .keywords-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9em;
+    margin-top: 2em;
+  }
+  .keyword {
+    background: linear-gradient(135deg,#4a90e2,#3b6db7);
+    padding: 0.45em 1em;
+    border-radius: 30px;
+    box-shadow: 0 4px 8px rgb(68 102 204 / 0.3);
+    font-weight: 600;
+    color: white;
+    font-size: 0.9em;
+    user-select: none;
+    cursor: default;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  /* Various colors */
+  .keyword.red { background: linear-gradient(135deg,#e74c3c, #b23022); }
+  .keyword.blue { background: linear-gradient(135deg,#3498db,#1f67ad); }
+  .keyword.green { background: linear-gradient(135deg,#27ae60,#1a6b3a); }
+  .keyword.orange { background: linear-gradient(135deg,#e67e22,#ad6500); }
+  .keyword.purple { background: linear-gradient(135deg,#8e44ad,#592c74); }
+  .keyword.teal { background: linear-gradient(135deg,#1abc9c,#126b65); }
+  .keyword.pink { background: linear-gradient(135deg,#ff6f91,#a43c56); }
+  .keyword.lime { background: linear-gradient(135deg,#b5e61d,#8eba15); color: #222;}
+  .keyword.cyan { background: linear-gradient(135deg,#00bcd4,#017a91); }
+  .keyword:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgb(0 0 0 / 0.25);
+  }
+
+  /* Info box styling */
+  .info-box {
+    background: #e8f0fe;
+    border-left: 6px solid #2255a4;
+    padding: 1em 1.2em;
+    margin-top: 1em;
+    border-radius: 6px;
+    font-size: 1em;
+    color: #1a3b6f;
+    user-select: none;
+  }
+  /* Milestones list */
+  .milestones {
+    margin-top: 1em;
+    line-height: 1.5;
+  }
+  /* Footer */
+  footer {
+    background: #e3e9f7;
+    text-align: center;
+    padding: 1.2em;
+    font-size: 0.9em;
+    color: #445a89;
+    user-select: none;
+  }
+  /* Responsive */
+  @media (max-width: 480px) {
+    main {
+      margin: 1em;
+      padding: 1.5em;
+    }
+    .keywords-container {
+      justify-content: center;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Unique AI Age Calculator</h1>
+  <nav role="navigation" aria-label="Primary navigation">
+    <a href="#calculator" class="active">Calculator</a>
+    <a href="#about">About</a>
+    <a href="#privacy">Privacy</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<main>
+  <section id="calculator" tabindex="-1" aria-labelledby="calc-title">
+    <h2 id="calc-title">Calculate Your Precise Age</h2>
+    <form id="ageForm" aria-label="Age Calculation Form">
+      <label for="birthdate">Your Date of Birth:</label>
+      <input type="date" id="birthdate" name="birthdate" max="" required aria-required="true" />
+
+      <label for="refdate">Calculate age as of (optional):</label>
+      <input type="date" id="refdate" name="refdate" aria-describedby="refdate-desc" />
+      <small id="refdate-desc" style="display:block; margin-bottom:1em; color:#666;">
+        Leave empty to calculate age as of now.
+      </small>
+      <button type="submit">Calculate Age</button>
+    </form>
+
+    <div id="result" role="region" aria-live="polite" tabindex="0"></div>
+
+    <div class="keywords-container" aria-label="Trending keywords">
+      <span class="keyword red" tabindex="0">Precise age calculator</span>
+      <span class="keyword blue" tabindex="0">Age in hours and minutes</span>
+      <span class="keyword green" tabindex="0">Custom date age calculator</span>
+      <span class="keyword orange" tabindex="0">Zodiac sign insight</span>
+      <span class="keyword purple" tabindex="0">Milestone tracker</span>
+      <span class="keyword teal" tabindex="0">Birthday celebrations</span>
+      <span class="keyword pink" tabindex="0">Accurate birthdate age</span>
+      <span class="keyword lime" tabindex="0">AI age estimation</span>
+      <span class="keyword cyan" tabindex="0">Life milestones</span>
+    </div>
+  </section>
+
+  <section id="about" tabindex="-1" aria-labelledby="about-heading">
+    <h2 id="about-heading">About This Tool</h2>
+    <p>
+      This is a unique AI Age Calculator designed for precision and engagement! You can calculate your exact age not only as of today but also as of any date you choose — past or future.
+    </p>
+    <p>
+      Alongside your age, discover your Zodiac sign and a fun personality insight. Additionally, get a milestone tracker showing total days and weeks you have lived, and receive celebratory messages for special ages.
+    </p>
+    <p>
+      This tool is 100% client-side respecting your privacy. Just input your birthdate and optionally, the date to calculate age as of.
+    </p>
+  </section>
+
+  <section id="privacy" tabindex="-1" aria-labelledby="privacy-heading">
+    <h2 id="privacy-heading">Privacy Policy</h2>
+    <p>
+      We value your privacy. This website does not collect or store any personal data. All calculations happen in your browser locally.
+    </p>
+    <p>
+      No cookies or tracking scripts are used.
+    </p>
+    <p>
+      Contact: <a href="mailto:reyanshoaib744@gmail.com">reyanshoaib744@gmail.com</a>
+    </p>
+  </section>
+
+  <section id="contact" tabindex="-1" aria-labelledby="contact-heading">
+    <h2 id="contact-heading">Contact Us</h2>
+    <p>For queries or feedback, please email:</p>
+    <p><a href="mailto:reyanshoaib744@gmail.com">reyanshoaib744@gmail.com</a></p>
+  </section>
+</main>
+
+<footer>
+  <p>© 2025 Unique AI Age Calculator</p>
+</footer>
+
+<script>
+  (() => {
+    const birthdateInput = document.getElementById('birthdate');
+    const refdateInput = document.getElementById('refdate');
+    const form = document.getElementById('ageForm');
+    const resultDiv = document.getElementById('result');
+
+    // Set max dates to today initially
+    const todayStr = new Date().toISOString().split('T')[0];
+    birthdateInput.setAttribute('max', todayStr);
+    refdateInput.setAttribute('max', todayStr);
+
+    // Zodiac sign ranges and personality
+    const zodiacSigns = [
+      { sign: "Capricorn", start: "12-22", end: "01-19", personality: "Practical, disciplined, and ambitious." },
+      { sign: "Aquarius", start: "01-20", end: "02-18", personality: "Innovative, independent, and humanitarian." },
+      { sign: "Pisces", start: "02-19", end: "03-20", personality: "Compassionate, artistic, and intuitive." },
+      { sign: "Aries", start: "03-21", end: "04-19", personality: "Bold, enthusiastic, and confident." },
+      { sign: "Taurus", start: "04-20", end: "05-20", personality: "Reliable, patient, and devoted." },
+      { sign: "Gemini", start: "05-21", end: "06-20", personality: "Adaptable, outgoing, and intelligent." },
+      { sign: "Cancer", start: "06-21", end: "07-22", personality: "Emotional, loyal, and protective." },
+      { sign: "Leo", start: "07-23", end: "08-22", personality: "Generous, warm-hearted, and charismatic." },
+      { sign: "Virgo", start: "08-23", end: "09-22", personality: "Analytical, practical, and diligent." },
+      { sign: "Libra", start: "09-23", end: "10-22", personality: "Diplomatic, gracious, and sociable." },
+      { sign: "Scorpio", start: "10-23", end: "11-21", personality: "Passionate, resourceful, and brave." },
+      { sign: "Sagittarius", start: "11-22", end: "12-21", personality: "Optimistic, adventurous, and honest." }
+    ];
+
+    function getZodiacSign(monthDay) {
+      // monthDay format: "MM-DD"
+      for(let zs of zodiacSigns) {
+        if(zs.start <= zs.end) {
+          if(monthDay >= zs.start && monthDay <= zs.end)
+            return zs;
+        } else {
+          // signs crossing year end (Capricorn)
+          if(monthDay >= zs.start || monthDay <= zs.end)
+            return zs;
+        }
+      }
+      return null;
+    }
+
+    // Calculate detailed age including hours and minutes
+    function calculateAge(birthDate, refDate) {
+      // Normalize hours/minutes to 0 if only date provided
+      // Using midnight 00:00 for birth and ref date times.
+
+      let years = refDate.getFullYear() - birthDate.getFullYear();
+      let months = refDate.getMonth() - birthDate.getMonth();
+      let days = refDate.getDate() - birthDate.getDate();
+      let hours = 0;
+      let minutes = 0;
+
+      // If refDate datetime available (not only date), calculate hours and minutes
+      if (refDate.getHours || birthDate.getHours) {
+        hours = refDate.getHours() - birthDate.getHours();
+        minutes = refDate.getMinutes() - birthDate.getMinutes();
+
+        if (minutes < 0) {
+          minutes += 60;
+          hours -= 1;
+        }
+        if (hours < 0) {
+          hours += 24;
+          days -= 1;
+        }
+      }
+
+      if (days < 0) {
+        months -= 1;
+        const prevMonth = new Date(refDate.getFullYear(), refDate.getMonth(), 0);
+        days += prevMonth.getDate();
+      }
+      if (months < 0) {
+        years -= 1;
+        months += 12;
+      }
+      if(years < 0) {
+        // Invalid inputs fallback
+        years = months = days = hours = minutes = 0;
+      }
+
+      return { years, months, days, hours, minutes };
+    }
+
+    // Calculate total days and weeks lived
+    function totalDaysWeeks(birthDate, refDate) {
+      const msPerDay = 1000 * 60 * 60 * 24;
+      let diff = refDate - birthDate;
+      const days = Math.floor(diff / msPerDay);
+      const weeks = Math.floor(days / 7);
+      return { days, weeks };
+    }
+
+    // Special age messages for celebrations
+    function getCelebrationMessage(years) {
+      if (years === 0) return "Welcome to the world, little one!";
+      if (years === 1) return "Happy 1st birthday! Time flies!";
+      if (years === 16) return "Sweet 16! A milestone to cherish.";
+      if (years === 18) return "Congratulations on turning 18! Welcome to adulthood.";
+      if (years === 21) return "Cheers on your 21st birthday!";
+      if (years === 30) return "The big 3-0! A new chapter.";
+      if (years === 40) return "40 is fabulous! Celebrate your journey.";
+      if (years === 50) return "Half a century – congratulations on 50 years!";
+      if (years === 60) return "60 years young! Here's to many more.";
+      if (years === 75) return "75 years of wisdom and experience!";
+      if (years === 100) return "Happy 100th! A century of memories.";
+      return ""; // no special message otherwise
+    }
+
+    // Handle form submission
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      resultDiv.textContent = '';
+      const birthValue = birthdateInput.value;
+      const refValue = refdateInput.value;
+
+      if(!birthValue) {
+        resultDiv.textContent = "Please enter your birth date.";
+        return;
+      }
+
+      const birthDate = new Date(birthValue + 'T00:00:00');
+      const refDate = refValue ? new Date(refValue + 'T00:00:00') : new Date();
+
+      // Limit refDate max to today
+      if(refDate > new Date()) {
+          resultDiv.textContent = "The reference date cannot be in the future.";
+          return;
+      }
+      if(birthDate > refDate) {
+        resultDiv.textContent = "Your birth date cannot be after the reference date.";
+        return;
+      }
+
+      const age = calculateAge(birthDate, refDate);
+
+      // Calculate zodiac sign
+      const birthMonthDay = birthValue.slice(5); // "MM-DD"
+      const zodiac = getZodiacSign(birthMonthDay);
+
+      // Total days and weeks lived
+      const milestones = totalDaysWeeks(birthDate, refDate);
+
+      // Celebration message
+      const celebration = getCelebrationMessage(age.years);
+
+      const lines = [
+        `Your age as of ${refValue || "now"} is:`,
+        `${age.years} years, ${age.months} months, ${age.days} days, ${age.hours} hours, and ${age.minutes} minutes.`,
+        zodiac ? `Zodiac sign: ${zodiac.sign} – ${zodiac.personality}` : "",
+        `You have lived approximately ${milestones.days} days (${milestones.weeks} weeks).`
+      ];
+      if(celebration) lines.push(`🎉 ${celebration}`);
+
+      resultDiv.innerHTML = lines.filter(l => l).map(l => `<p>${l}</p>`).join('');
+      resultDiv.focus();
+    });
+
+    // Navigation highlight based on scroll
+    const navLinks = document.querySelectorAll('nav a');
+    const sections = Array.from(navLinks).map(link => document.querySelector(link.hash));
+
+    window.addEventListener('scroll', () => {
+      let scrollPos = window.scrollY + 110; // offset header height + padding
+      for(let i = sections.length - 1; i >= 0; i--) {
+        if(sections[i].offsetTop <= scrollPos) {
+          navLinks.forEach(link => link.classList.remove('active'));
+          navLinks[i].classList.add('active');
+          break;
+        }
+      }
+    });
+  })();
+</script>
+</body>
+</html>
